@@ -144,10 +144,14 @@ router.get('/:conn/:db/:coll', function (req, res, next) {
         }
     }
 
-    mongo_db.collection(collName).find(query_obj, {skip: skip, limit: limit}).toArray(function (err, result) {
+    console.log(query_obj, q)
+    mongo_db.collection(collName).find(query_obj, {
+        skip: skip,
+        limit: limit
+    }).sort({"_id": -1}).toArray(function (err, result) {
         if (err) {
             console.error(err);
-            res.status(500).json(err);
+            res.json(err);
         } else {
             mongo_db.collection(collName).find({}, {
                 skip: skip,
@@ -179,7 +183,7 @@ router.get('/:conn/:db/:coll', function (req, res, next) {
                         queryMessage: queryMessage
                     };
                     res.json({
-                        status:0,
+                        status: 0,
                         message: 'OK',
                         data: return_data
                     });
