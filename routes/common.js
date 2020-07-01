@@ -2,28 +2,6 @@ var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
 
-// checks for the password in the /config/app.json file if it's set
-exports.checkLogin = function(req, res, next){
-    var passwordConf = req.nconf.app.get('app');
-
-    // only check for login if a password is specified in the /config/app.json file
-    if(passwordConf && passwordConf.hasOwnProperty('password')){
-        // dont require login session for login route
-        if(req.path === '/app/login' || req.path === '/app/logout' || req.path === '/app/login_action'){
-            next();
-        }else{
-            // if the session exists we continue, else renter login page
-            if(req.session.loggedIn){
-                next(); // allow the next route to run
-            }else{
-                res.redirect(req.app_context + '/app/login');
-            }
-        }
-    }else{
-        // no password is set so we continue
-        next();
-    }
-};
 
 // gets some db stats
 exports.get_db_status = function (mongo_db, cb){
@@ -37,15 +15,6 @@ exports.get_db_status = function (mongo_db, cb){
     });
 };
 
-// gets the backup dirs
-exports.get_backups = function(cb){
-    var junk = require('junk');
-    var backupPath = path.join(__dirname, '../backups');
-
-    fs.readdir(backupPath, function (err, files){
-        cb(null, files.filter(junk.not));
-    });
-};
 
 // gets the db stats
 exports.get_db_stats = function (mongo_db, db_name, cb){
@@ -194,46 +163,6 @@ exports.get_id_type = function (mongo, collection, doc_id, cb){
     }
 };
 
-// gets the Databases and collections
-exports.get_sidebar_list = function (mongo_db, db_name, cb){
-    var async = require('async');
-    var db_obj = {};
-
-    // if no DB is specified, we get all DBs and collections
-    if(db_name == null){
-        var adminDb = mongo_db.admin();
-        adminDb.listDatabases(function (err, db_list){
-            if(db_list){
-                async.forEachOf(db_list.databases, function (value, key, callback){
-                    var skipped_dbs = ['null', 'admin', 'local'];
-                    if(skipped_dbs.indexOf(value.name) === -1){
-                        mongo_db.db(value.name).listCollections().toArray(function (err, collections){
-                            collections = exports.cleanCollections(collections);
-                            exports.order_array(collections);
-                            db_obj[value.name] = collections;
-                            callback();
-                        });
-                    }else{
-                        callback();
-                    }
-                }, function (err){
-                    if(err) console.error(err.message);
-                    cb(null, exports.order_object(db_obj));
-                });
-            }else{
-                cb(null, exports.order_object(db_obj));
-            }
-        });
-    }else{
-        mongo_db.db(db_name).listCollections().toArray(function (err, collections){
-            collections = exports.cleanCollections(collections);
-            exports.order_array(collections);
-            db_obj[db_name] = collections;
-            cb(null, db_obj);
-        });
-    }
-};
-
 // order the object by alpha key
 exports.order_object = function(unordered){
     if(unordered !== undefined){
@@ -260,23 +189,6 @@ exports.order_array = function(array){
     return array;
 };
 
-// render the error page
-exports.render_error = function(res, req, err, conn){
-    var connection_list = req.nconf.connections.get('connections');
-
-    var conn_string = '';
-    if(connection_list[conn] !== undefined){
-        conn_string = connection_list[conn].connection_string;
-    }
-
-    res.render('error', {
-        message: err,
-        conn: conn,
-        conn_string: conn_string,
-        connection_list: exports.order_object(connection_list),
-        helpers: req.handlebars.helpers
-    });
-};
 
 exports.cleanCollections = function(collection_list){
     var list = [];

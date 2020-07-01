@@ -8,7 +8,9 @@ var async = require('async');
 var fs = require('fs');
 
 // 定义路由
-var api = require('./routes/api');
+var indexRoute = require('./routes/index');
+var apiRoute = require('./routes/api');
+var configRoute = require('./routes/config');
 
 var dir_base = __dirname;
 
@@ -107,8 +109,9 @@ app.use(function (req, res, next) {
 });
 
 // 组织路由
-app.use('/', api);
-app.use('/api/app', api);
+app.use('/', indexRoute);
+app.use('/api/app', apiRoute);
+app.use('/api/config', configRoute);
 
 // === Error handlers ===
 
@@ -125,6 +128,7 @@ app.use(function (req, res, next) {
 
 // Error handlers
 app.use(function (err, req, res, next) {
+    console.log(err)
     res.status(err.status || 500);
     console.error('%s %d %s', req.method, res.statusCode, err.message);
     res.json({
