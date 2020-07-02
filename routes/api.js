@@ -100,9 +100,9 @@ router.get('/:conn/:db/:coll', function (req, res, next) {
     var dbName = req.params.db;
     var collName = req.params.coll;
     var page_num = req.query.page;
-    var docs_per_page = parseInt(req.query.per_page) !== undefined ? parseInt(req.query.per_page) : 5;
+    var docs_per_page = req.query.per_page !== undefined ? parseInt(req.query.per_page) : 5;
     var q = req.query.q;
-
+    var sort = req.query.sort !== undefined ? parseInt(req.query.sort) : -1;
 
     // Check for existance of connection
     if (connection_list[connName] === undefined) {
@@ -140,15 +140,16 @@ router.get('/:conn/:db/:coll', function (req, res, next) {
         } catch (e) {
             validQuery = false;
             queryMessage = e.toString();
+            console.error('queryMessage error:', queryMessage);
             query_obj = {};
         }
     }
 
-    console.log(query_obj, q)
+    console.log('query_obj', query_obj, 'q', q)
     mongo_db.collection(collName).find(query_obj, {
         skip: skip,
         limit: limit
-    }).sort({"_id": -1}).toArray(function (err, result) {
+    }).sort({"_id": sort}).toArray(function (err, result) {
         if (err) {
             console.error(err);
             res.json(err);
