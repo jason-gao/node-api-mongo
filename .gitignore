@@ -3,6 +3,7 @@ data/
 node_modules/
 releases/
 doc/
+Makefile
 
 .DS_Store
 
