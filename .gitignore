@@ -2,7 +2,9 @@ config/
 data/
 node_modules/
 releases/
+doc/
 
+.DS_Store
 
 ### Node ###
 # Logs
