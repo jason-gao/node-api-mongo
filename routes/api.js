@@ -184,7 +184,7 @@ router.get('/:conn/:db/:coll', function (req, res, next) {
                         queryMessage: queryMessage
                     };
                     res.json({
-                        status: 0,
+                        status: 1,
                         message: 'OK',
                         data: return_data
                     });
