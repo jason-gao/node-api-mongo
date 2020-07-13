@@ -11,6 +11,7 @@ var fs = require('fs');
 var indexRoute = require('./routes/index');
 var apiRoute = require('./routes/api');
 var configRoute = require('./routes/config');
+var userRoute = require('./routes/user');
 
 var dir_base = __dirname;
 
@@ -25,6 +26,7 @@ var db = new Datastore({filename: path.join(dir_base, 'data/dbStats.db'), autolo
 var dir_config = path.join(dir_base, 'config/');
 var config_connections = path.join(dir_config, 'config.json');
 var config_app = path.join(dir_config, 'app.json');
+var config_user = path.join(dir_config, 'user.json');
 
 // Check existence of config dir and config files, create if nothing
 if (!fs.existsSync(dir_config)) fs.mkdirSync(dir_config);
@@ -74,11 +76,17 @@ if (fs.existsSync(config_connections, 'utf8')) {
         fs.writeFileSync(config_connections, '{}', 'utf8');
     }
 }
+if(fs.existsSync(config_user, 'utf8')){
+    if(fs.readFileSync(config_user, 'utf8') === ''){
+        fs.writeFileSync(config_user, '{}', 'utf8');
+    }
+}
 
 // setup the two conf. 'app' holds application config, and connections
 // holds the mongoDB connections
 nconf.add('connections', {type: 'file', file: config_connections});
 nconf.add('app', {type: 'file', file: config_app});
+nconf.add('user', {type:'file', file:config_user});
 
 // set app defaults
 var app_host = process.env.HOST || 'localhost';
@@ -110,6 +118,7 @@ app.use(function (req, res, next) {
 
 // 组织路由
 app.use('/', indexRoute);
+app.use('/api/user', userRoute);
 app.use('/api/app', apiRoute);
 app.use('/api/config', configRoute);
 
@@ -179,5 +188,6 @@ async.forEachOf(connection_list, function (value, key, callback) {
             }
         });
     });
+
 
 module.exports = app;
