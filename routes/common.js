@@ -197,3 +197,21 @@ exports.cleanCollections = function(collection_list){
     });
     return list;
 };
+
+
+exports.jParse = function (str) {
+    var s;
+
+    try {
+        if (str.indexOf('{') > -1) {
+            s = JSON.parse(str);
+
+            return s;
+        } else {
+            return str;
+        }
+    } catch (e) {
+
+        return str;
+    }
+}

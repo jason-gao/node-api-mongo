@@ -176,6 +176,15 @@ router.get('/:conn/:db/:coll', function (req, res, next) {
 
                 // get total num docs in query
                 mongo_db.collection(collName).count(query_obj, function (err, doc_count) {
+                    if(result){
+                        result.forEach(item=>{
+                            if (item.args !== undefined){
+                               item.args = item.args.map(subitem=>{
+                                   return common.jParse(subitem);
+                               });
+                           }
+                        });
+                    }
                     var return_data = {
                         list: result,
                         fields: fields,
