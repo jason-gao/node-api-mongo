@@ -19,6 +19,7 @@ router.post('/add_config', function (req, res, next) {
     var nconf = req.nconf.connections;
     var MongoURI = require('mongo-uri');
     var connName = req.body.conn_name;
+    var connTitle = req.body.title || connName;
     var connString = req.body.conn_string;
     var connOptions = req.body.conn_options;
 
@@ -68,6 +69,7 @@ router.post('/add_config', function (req, res, next) {
             } else {
                 // set the new config
                 nconf.set('connections:' + connName, {
+                    'title': connTitle,
                     'connection_string': connString,
                     'connection_options': options
                 });
