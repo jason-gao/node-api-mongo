@@ -178,7 +178,7 @@ router.get('/:conn/:db/:coll', function (req, res, next) {
                 mongo_db.collection(collName).count(query_obj, function (err, doc_count) {
                     if(result){
                         result.forEach(item=>{
-                            if (item.args !== undefined){
+                            if (Array.isArray(item.args)){
                                item.args = item.args.map(subitem=>{
                                    return common.jParse(subitem);
                                });
